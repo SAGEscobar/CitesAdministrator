@@ -6,18 +6,20 @@
  * @flow strict-local
  */
 
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import Cite from './components/Cite';
 import Form from './components/Form';
 import {
   Text,
   StyleSheet,
   View,
-  FlatList
+  FlatList,
+  Platform
 } from 'react-native';
 
 
 const App = () => {
+  const [show, setShow] = useState(false)
   //Define cite state
   const [cites, setCites] = useState([
     { id: "1", patient: "Hook", owner: 'Sergio', symptoms: 'No come' },
@@ -32,19 +34,39 @@ const App = () => {
     })
   }
 
+  const showFrom = () => {
+    setShow(!show)
+  }
+
   return (
     <View style={styles.container}>
-
+      <Text style={styles.title}>Administradot de Citas</Text>
       <View style={styles.content}>
-        <Form style={styles.list} />
 
-        <Text style={styles.title}>{cites.length > 0 ? 'Administrador de citas' : 'No hay citas, agrega una'}</Text>
+        {
+          show ? (
+            <Fragment>
+              <Text style={styles.title}>{show ? 'Crear nueva cita' : 'Cancelar'}</Text>
+              <Form style={styles.list} cites={cites} setCites={setCites} showFrom={showFrom} />
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Text style={styles.title}>{cites.length > 0 ? 'Administra tus citas' : 'No hay citas, agrega una'}</Text>
 
-        <FlatList
-          data={cites}
-          renderItem={({ item }) => <Cite cite={item} deletePatient={deletePatient} />}
-          keyExtractor={cite => cite.id}
-        />
+              <View>
+                <TouchableHighlight onPress={() => showFrom()} style={styles.btnShow}>
+                  <Text style={styles.showText}>Crear cita</Text>
+                </TouchableHighlight>
+              </View>
+
+              <FlatList
+                data={cites}
+                renderItem={({ item }) => <Cite cite={item} deletePatient={deletePatient} />}
+                keyExtractor={cite => cite.id}
+              />
+            </Fragment>
+          )
+        }
       </View>
 
     </View>
@@ -58,7 +80,7 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 40 : 20 ,
     marginBottom: 20,
     fontSize: 24,
     fontWeight: 'bold',
@@ -70,6 +92,16 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+  },
+  btnShow: {
+    padding: 10,
+    backgroundColor: '#AA0768',
+    marginVertical: 10
+  },
+  showText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 });
 

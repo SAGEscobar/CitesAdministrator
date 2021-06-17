@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import shortid from 'shortid'
 import {
   Text,
   View,
@@ -6,11 +7,14 @@ import {
   TextInput,
   Button,
   TouchableHighlight,
-  Alert, 
-  ScrollView} from 'react-native';
+  Alert,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
-const Form = () => {
+const Form = ({ cites, setCites, showForm }) => {
   const [patient, setPatient] = useState('');
   const [owner, setOwner] = useState('');
   const [phone, setPhone] = useState('');
@@ -58,9 +62,23 @@ const Form = () => {
       symptoms.trim() === '' ||
       date.trim() === '' ||
       hour.trim() === '') {
-        showAlert
-        return;
+      showAlert
+      return;
     }
+
+    const cite = { patient, owner, phone, date, hour, symptoms }
+    cite.id = shortid.generate();
+
+    setCites([...cites, cite])
+
+    setPatient('')
+    setOwner('')
+    setPhone('')
+    setSymptoms('')
+    setDate('')
+    setHour('')
+
+    showForm()
   }
 
   //Show alert if validation fails
@@ -74,76 +92,82 @@ const Form = () => {
     )
   }
 
+  const closeKeyboard = () => {
+    Keyboard.dismiss();
+  }
+
   return (
-    <Fragment>
-      <ScrollView style={styles.form}>
-        <View>
-          <Text style={styles.label}>Paciente</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => setPatient(text)}
-          />
-        </View>
-        <View>
-          <Text style={styles.label}>Dueño</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => setOwner(text)}
-          />
-        </View>
-        <View>
-          <Text style={styles.label}>Telefono de contacto</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => setPhone(text)}
-            keyboardType='numeric'
-          />
-        </View>
+    <TouchableWithoutFeedback onPress={() => closeKeyboard()}>
+      <Fragment>
+        <ScrollView style={styles.form}>
+          <View>
+            <Text style={styles.label}>Paciente</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={text => setPatient(text)}
+            />
+          </View>
+          <View>
+            <Text style={styles.label}>Dueño</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={text => setOwner(text)}
+            />
+          </View>
+          <View>
+            <Text style={styles.label}>Telefono de contacto</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={text => setPhone(text)}
+              keyboardType='numeric'
+            />
+          </View>
 
-        <View>
-          <Text style={styles.label}>Fecha</Text>
-          <Button title="Seleccionar fecha" onPress={showDatePicker} />
-          <DateTimePicker
-            isVisible={isDatePickerVisible}
-            mode="date"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-            locale='es_ES'
-            headerTextIOS="Elige una fecha"
-          />
-          <Text>{date}</Text>
-        </View>
+          <View>
+            <Text style={styles.label}>Fecha</Text>
+            <Button title="Seleccionar fecha" onPress={showDatePicker} />
+            <DateTimePicker
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleConfirm}
+              onCancel={hideDatePicker}
+              locale='es_ES'
+              headerTextIOS="Elige una fecha"
+            />
+            <Text>{date}</Text>
+          </View>
 
-        <View>
-          <Text style={styles.label}>Hora</Text>
-          <Button title="Seleccionar hora" onPress={showTimePicker} />
-          <DateTimePicker
-            isVisible={isTimePickerVisible}
-            mode="time"
-            onConfirm={handleConfirmTime}
-            onCancel={hideTimePicker}
-            headerTextIOS="Elige una hora"
-          />
-          <Text>{hour}</Text>
-        </View>
+          <View>
+            <Text style={styles.label}>Hora</Text>
+            <Button title="Seleccionar hora" onPress={showTimePicker} />
+            <DateTimePicker
+              isVisible={isTimePickerVisible}
+              mode="time"
+              onConfirm={handleConfirmTime}
+              onCancel={hideTimePicker}
+              headerTextIOS="Elige una hora"
+            />
+            <Text>{hour}</Text>
+          </View>
 
-        <View>
-          <Text style={styles.label}>Sintomas</Text>
-          <TextInput
-            multiline
-            style={styles.input}
-            onChangeText={text => setSymptoms(text)}
-          />
-        </View>
+          <View>
+            <Text style={styles.label}>Sintomas</Text>
+            <TextInput
+              multiline
+              style={styles.input}
+              onChangeText={text => setSymptoms(text)}
+            />
+          </View>
 
-        <View>
-          <TouchableHighlight onPress={() => createCite()} style={styles.btnSubmit}>
-            <Text style={styles.submitText}>Agendar Cita</Text>
-          </TouchableHighlight>
-        </View>
+          <View>
+            <TouchableHighlight onPress={() => createCite()} style={styles.btnSubmit}>
+              <Text style={styles.submitText}>Agendar Cita</Text>
+            </TouchableHighlight>
+          </View>
 
-      </ScrollView>
-    </Fragment>
+        </ScrollView>
+      </Fragment>
+    </TouchableWithoutFeedback>
   )
 }
 
