@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
-const Form = ({ cites, setCites, showForm }) => {
+const Form = ({ cites, setCites, showForm, setCiteStorage }) => {
   const [patient, setPatient] = useState('');
   const [owner, setOwner] = useState('');
   const [phone, setPhone] = useState('');
@@ -69,7 +69,11 @@ const Form = ({ cites, setCites, showForm }) => {
     const cite = { patient, owner, phone, date, hour, symptoms }
     cite.id = shortid.generate();
 
-    setCites([...cites, cite])
+    const newCites = [...cites, cite];
+
+    setCites(newCites);
+
+    setCiteStorage(JSON.stringify(newCites));
 
     setPatient('')
     setOwner('')

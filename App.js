@@ -1,12 +1,5 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
 import Cite from './components/Cite';
 import Form from './components/Form';
 import {
@@ -21,21 +14,37 @@ import {
 const App = () => {
   const [show, setShow] = useState(false)
   //Define cite state
-  const [cites, setCites] = useState([
-    { id: "1", patient: "Hook", owner: 'Sergio', symptoms: 'No come' },
-    { id: "2", patient: "Redux", owner: 'Alfredo', symptoms: 'No duerme' },
-    { id: "3", patient: "Native", owner: 'Juan', symptoms: 'se murio' },
-    { id: "4", patient: "Helmet", owner: 'Jorge', symptoms: 'anuma' }
-  ]);
+  const [cites, setCites] = useState([]);
+
+  useEffect(() => {
+    const getCitesStorages = async () => {
+      try {
+        const citesStorage = await AsyncStorage.getItem('cites')
+        if(citesStorage){
+          setCites(JSON.parse(citesStorage))
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }, [])
 
   const deletePatient = id => {
-    setCites((currentCites) => {
-      return currentCites.filter(cite => cite.id !== id)
-    })
+    const filterCites = cites.filter(cite => cite.id !== id);
+    setCites(filterCites);
+    setCiteStorage(JSON.stringify(filterCites));
   }
 
   const showFrom = () => {
     setShow(!show)
+  }
+
+  const setCiteStorage = async (citesJSON) => {
+    try {
+      await AsyncStorage.setItem('cites', citesJSON)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -47,7 +56,7 @@ const App = () => {
           show ? (
             <Fragment>
               <Text style={styles.title}>{show ? 'Crear nueva cita' : 'Cancelar'}</Text>
-              <Form style={styles.list} cites={cites} setCites={setCites} showFrom={showFrom} />
+              <Form style={styles.list} cites={cites} setCites={setCites} showFrom={showFrom} setCiteStorage={setCiteStorage} />
             </Fragment>
           ) : (
             <Fragment>
@@ -80,7 +89,7 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    marginTop: Platform.OS === 'ios' ? 40 : 20 ,
+    marginTop: Platform.OS === 'ios' ? 40 : 20,
     marginBottom: 20,
     fontSize: 24,
     fontWeight: 'bold',
